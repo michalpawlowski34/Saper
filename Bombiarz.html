@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Bombiarz</title>
+    <link href="https://fonts.googleapis.com/css?family=Henny+Penny&display=swap" rel="stylesheet">
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            font-family: 'Henny Penny';
+            font-style: normal;
+            font-weight: 400;
+        }
+        .baton {
+            color: black;
+            width: 85px;
+            height: 30px;
+            border: 1px solid black;
+            border-radius: 10px;
+            background-color: white;
+        }
+        .kontener {
+            margin-left: 47%;
+            margin-top: 100px;
+        }
+        .dane {
+            margin-top:2px; 
+            font-size: 17px;
+        }
+        .heightDiv{
+            font-size:20px
+        }
+        input {
+            width: 33px;
+            height: 24px;
+            margin-bottom: 5px;
+        }
+        .div1 {
+            margin-top: 10px;
+            font-size:20px;
+            margin-left:-30px;
+        }
+        .div2 {
+            font-size:20px;
+        }
+        table {
+            border: 1px solid black;
+            margin-left:-45px;
+            color: blue;
+            font-size: 57%;
+            text-align: center;
+        }
+        td {
+            border: 1px solid black;
+            background-image: url('img/klepa.png');
+            width: 16px;
+            height: 16px;
+        }
+        .highscoresTable{
+            border:1px solid black;
+            margin-left:-65px;
+            color:black;
+            font-size:80%;
+            text-align:center;
+            margin-top:100px;
+        }
+        .highscoresTable td {
+            border:1px solid black;
+            background-image: url('');
+            width: 70px;
+            height: 30px;
+        }
+        .highscoresTable th {
+            border:1px solid black;
+            background-color: lightgrey;
+            width: 70px;
+            height: 30px;
+        }
+    </style>
+</head>
+<body>
+<script>
+    var kontener=document.createElement('div')
+    kontener.classList.add('kontener')
+    document.body.appendChild(kontener)
+    var heightDiv=document.createElement('div')
+    heightDiv.classList.add('dane','heightDiv')
+    heightDiv.innerHTML='Height: '
+    kontener.appendChild(heightDiv)
+    var widthDiv=document.createElement('div')
+    widthDiv.innerHTML='Width: '
+    widthDiv.classList.add('dane')
+    kontener.appendChild(widthDiv)
+    var minesDiv=document.createElement('div')
+    minesDiv.classList.add('dane')
+    minesDiv.innerHTML='Mines: '
+    kontener.appendChild(minesDiv)
+    var height_input=document.createElement('input')
+    heightDiv.appendChild(height_input)
+    var width_input=document.createElement('input')
+    widthDiv.appendChild(width_input)
+    var mines_input=document.createElement('input')
+    minesDiv.appendChild(mines_input)
+    //
+    //button
+    var but=document.createElement('button')
+    but.innerHTML="GENERUJ"
+    but.classList.add('baton')
+    kontener.appendChild(but)
+    //timer
+    var czas=0;
+    var div2=document.createElement('div')
+    div2.classList.add('div2')
+    var licznik=function(){
+        czas=czas+1
+        div2.innerHTML='Grasz: '+ czas + '[s]'
+    }
+    div2.innerHTML='Grasz: 0[s]'
+    var timeCounting=false
+    //
+    //isNaN(input)
+    var inputList=document.querySelectorAll('input')
+    inputList.forEach(function(input){
+        input.oninput=function(e){
+            var inputValue=e.target.value
+            if (isNaN(inputValue)==true){
+                var usuwacz=function(){
+                    e.target.value=""
+            }
+                setTimeout(usuwacz,1000)
+            }
+        }
+    })
+    //isnan end
+    //
+    //bomby
+    var div1=document.createElement('div')
+    div1.classList.add('div1')
+    //bomby end
+    var alreadyPlayed=false
+    but.onclick=function(){                                                         //dodac se zmienna alreadyPlayed=true/false jesli true to zeruje div1,div2 itd.
+        //input_checker
+        if(height_input.value==""||width_input.value==""||mines_input.value==""){
+            window.alert("Wpisz wszystkie wartości")
+        }
+        else if(mines_input.value>width_input.value*height_input.value){
+            window.alert('Niepoprawna ilość bomb')
+        }
+        else {
+            if(alreadyPlayed==true){
+                location.reload()
+            }
+            alreadyPlayed=true
+        //input_checker /end
+        //
+        //bomby
+        var bombTab=[]
+        for(var i=0;i<height_input.value;i++){
+            bombTab[i]=[]
+            for(var j=0;j<width_input.value;j++){               //wypelnianie calej tablicy zerami
+                bombTab[i][j]=0
+            }
+        }
+        for(var k=0;k<mines_input.value;k++){
+        var randomPlace1=Math.floor(Math.random() * height_input.value);
+        var randomPlace2=Math.floor(Math.random() * width_input.value);     
+        if (bombTab[randomPlace1][randomPlace2]==1){            //generowanie randomowych miejsc w tablicy ktore wypelnie 1, jesli juz jest 1 to powtorz
+            k--
+        }
+        else {
+            bombTab[randomPlace1][randomPlace2]=1
+        }
+        }
+        
+        console.log(bombTab)
+        div1.innerHTML='Pozostało bomb: '+mines_input.value
+        kontener.appendChild(div1)
+        //bomby end
+        //
+        //timer_function
+        if(timeCounting==true){
+        clearInterval(myTimer)
+        czas=0
+        div2.innerHTML='Grasz: '+ czas + '[s]'
+        }
+        else{
+        var myTimer=setInterval(licznik,1000)
+        kontener.appendChild(div2)
+        timeCounting=true
+        }
+        //timer_function_/end
+        //
+        //plansza
+        var tabela=document.createElement('table')
+        kontener.appendChild(tabela)
+        for(var y=0;y<height_input.value;y++){
+        var wiersz=document.createElement('tr')
+        tabela.appendChild(wiersz)
+            for(var p=0;p<width_input.value;p++){
+                var pole=document.createElement('td')
+                pole.setAttribute('id',y+'_'+p)
+                wiersz.appendChild(pole)
+            }
+        }
+        //plansza /end
+        //
+        //highscores
+        var div3=document.createElement('div')
+        div3.classList.add('div3')
+        kontener.appendChild(div3)
+        var highscoresTable=document.createElement('table')
+        highscoresTable.classList.add('highscoresTable')
+        div3.appendChild(highscoresTable)
+        var wiersz1=document.createElement('tr')
+        highscoresTable.appendChild(wiersz1)
+        for(var l=0;l<4;l++){
+                var pole1=document.createElement('th')
+                pole1.setAttribute('id','hs'+l)
+                wiersz1.appendChild(pole1)
+            }
+        var el=document.getElementById(`hs0`)
+        el.innerHTML='Nick:'
+        var el=document.getElementById(`hs1`)
+        el.innerHTML='Czas:'
+        var el=document.getElementById(`hs2`)
+        el.innerHTML='Rozmiar planszy:'
+        var el=document.getElementById(`hs3`)
+        el.innerHTML='Ilość bomb:'
+        
+        //highscores /end
+        //
+        //klik LPM
+        var bombChecker=function(a,b){
+        var tab2=[]
+            var bombChecker_licznik=0
+            if(a-1>=0&&b-1>=0){
+            if(bombTab[a-1][b-1]==1){
+                bombChecker_licznik++
+            }
+            }
+            if(a-1>=0){
+            if(bombTab[a-1][b]==1){
+                bombChecker_licznik++
+            }
+            }
+            if(a-1>=0&&b+1<width_input.value){
+            if(bombTab[a-1][b+1]==1){
+                bombChecker_licznik++
+            }
+            }
+            if(b-1>=0){
+            if(bombTab[a][b-1]==1){
+                bombChecker_licznik++
+            }
+            }
+            if(bombTab[a][b]==1){
+                bombChecker_licznik++
+            }
+            if(b+1<width_input.value){
+            if(bombTab[a][b+1]==1){
+                bombChecker_licznik++
+            }
+            }
+            if(a+1<height_input.value&&b-1>=0){
+            if(bombTab[a+1][b-1]==1){
+                bombChecker_licznik++
+            }
+            }
+            if(a+1<height_input.value){
+            if(bombTab[a+1][b]==1){
+                bombChecker_licznik++
+            }
+            }
+            if(a+1<height_input.value&&b+1<width_input.value){
+            if(bombTab[a+1][b+1]==1){
+                bombChecker_licznik++
+            }
+            }
+            return bombChecker_licznik
+        }
+        var pole=document.querySelectorAll('td')
+        pole.forEach(function(element){
+            element.addEventListener("click",function(){
+                if(this.classList.contains('flagged')){}
+                else {
+                var winGame=true
+                var tabTMP=this.id.split("_")       //po kliknieciu pobieram id i robie usuwanie podlogi, dodaje do tablicy i porownuje to z bombTab[x][y]
+                console.log(tabTMP)
+                var x=parseInt(tabTMP[0])
+                var y=parseInt(tabTMP[1])
+                if(bombTab[x][y]==1){
+                    window.alert('PRZEGRAŁEŚ')
+                    winGame=false
+                    clearInterval(myTimer)
+                    for(var a=0;a<height_input.value;a++){
+                        for(var b=0;b<width_input.value;b++){                   //odkrycie reszty bomb
+                                var el=document.getElementById(`${a}_${b}`)
+                                el.classList.add('flagged','showed')                      //brak mozliwosci kliku po przegranej
+                                if (bombTab[a][b]==1){
+                                console.log(el)
+                                el.style.backgroundImage="url('img/pbomb.png')"
+                            }
+
+                        }
+                    }
+                    this.style.backgroundImage="url('img/bomb.png')"            //odkrycie kliknietej bomby
+                }
+                else {
+                    var bombCheckerHTML= bombChecker(parseInt(x),parseInt(y))
+                    this.innerHTML=bombCheckerHTML  
+                    var floodFill=function(x,y){
+                    //if(bombCheckerHTML==0){                                                     //autoodkrywanie zer
+                        if(x-1>=0&&y-1>=0){
+                            var el=document.getElementById(`${x-1}_${y-1}`)
+                            if(el.classList.contains('showed')){}
+                            else{
+                            el.innerHTML=bombChecker(parseInt(x-1),parseInt(y-1))
+                            el.style.backgroundImage="url('')"
+                            el.classList.add('showed','flagged')
+                            if (bombChecker(x-1,y-1)==0){
+                                floodFill(x-1,y-1)
+                            }
+                            }
+                        }
+                        if(x-1>=0){
+                            var el=document.getElementById(`${x-1}_${y}`)
+                            if(el.classList.contains('showed')){}
+                            else{
+                            el.innerHTML=bombChecker(parseInt(x-1),parseInt(y))
+                            el.style.backgroundImage="url('')"
+                            el.classList.add('showed','flagged')
+                            if (bombChecker(x-1,y)==0){
+                                floodFill(x-1,y)
+                            }
+                            }
+                        }
+                        if(x-1>=0&&y+1<width_input.value){
+                            var el=document.getElementById(`${x-1}_${y+1}`)
+                            if(el.classList.contains('showed')){}
+                            else{
+                            el.innerHTML=bombChecker(parseInt(x-1),parseInt(y+1))
+                            el.style.backgroundImage="url('')"
+                            el.classList.add('showed','flagged')
+                            if (bombChecker(x-1,y+1)==0){
+                                floodFill(x-1,y+1)
+                            }
+                            }
+                        }
+                        if(y-1>=0){
+                            var el=document.getElementById(`${x}_${y-1}`)
+                            if(el.classList.contains('showed')){}
+                            else{
+                            el.innerHTML=bombChecker(parseInt(x),parseInt(y-1))
+                            el.style.backgroundImage="url('')"
+                            el.classList.add('showed','flagged')
+                            if (bombChecker(x,y-1)==0){
+                                floodFill(x,y-1)
+                            }
+                            }
+                        }
+                        if(y+1<width_input.value){
+                            var el=document.getElementById(`${x}_${y+1}`)
+                            if(el.classList.contains('showed')){}
+                            else{
+                            el.innerHTML=bombChecker(parseInt(x),parseInt(y+1))
+                            el.style.backgroundImage="url('')"
+                            el.classList.add('showed','flagged')
+                            if (bombChecker(x,y+1)==0){
+                                floodFill(x,y+1)
+                            }
+                            }
+                        }
+                        if(x+1<height_input.value&&y-1>=0){
+                            var el=document.getElementById(`${x+1}_${y-1}`)
+                            if(el.classList.contains('showed')){}
+                            else{
+                            el.innerHTML=bombChecker(parseInt(x+1),parseInt(y-1))
+                            el.style.backgroundImage="url('')"
+                            el.classList.add('showed','flagged')
+                            if (bombChecker(x+1,y-1)==0){
+                                floodFill(x+1,y-1)
+                            }
+                            }
+                        }
+                        if(x+1<height_input.value){
+                            var el=document.getElementById(`${x+1}_${y}`)
+                            if(el.classList.contains('showed')){}
+                            else{
+                            el.innerHTML=bombChecker(parseInt(x+1),parseInt(y))
+                            el.style.backgroundImage="url('')"
+                            el.classList.add('showed','flagged')
+                            if (bombChecker(x+1,y)==0){
+                                floodFill(x+1,y)
+                            }
+                            }
+                        }
+                        if(x+1<height_input.value&&y+1<width_input.value){
+                            var el=document.getElementById(`${x+1}_${y+1}`)
+                            if(el.classList.contains('showed')){}
+                            else{
+                            el.innerHTML=bombChecker(parseInt(x+1),parseInt(y+1))
+                            el.style.backgroundImage="url('')"
+                            el.classList.add('showed','flagged')
+                            if (bombChecker(x+1,y+1)==0){
+                                floodFill(x+1,y+1)
+                            }
+                            }
+                        }
+                    //}
+                    }
+                    if(bombCheckerHTML==0){
+                        floodFill(x,y)
+                    } 
+                    console.log(this)
+                    this.style.backgroundImage="url('')"
+                }
+                this.classList.add('showed')
+                for(var a=0;a<height_input.value;a++){                                  //wygrana
+                        for(var b=0;b<width_input.value;b++){ 
+                                if(bombTab[a][b]==0){                 
+                                var el=document.getElementById(`${a}_${b}`)
+                                    if(el.classList.contains('showed')){}
+                                    else{
+                                        winGame=false
+                                    }
+                                }                
+                            }
+                        }
+                        if(winGame==true){
+                            clearInterval(myTimer)
+                            window.alert('WYGRAŁEŚ!')
+                            var nickPrompt=window.prompt('Podaj swój nick')
+                            console.log(nickPrompt)
+                            console.log(czas)
+                            for(var a=0;a<height_input.value;a++){
+                                for(var b=0;b<width_input.value;b++){
+                                    var el=document.getElementById(`${a}_${b}`)
+                                    el.classList.add('flagged','showed')                    //brak mozliwosci kliku
+                                }
+                            }
+                            //highscore cookie
+                            //document.cookie=height_input.value+'/'+width_input.value+'/'+mines_input.value+'='+nickPrompt+'#'+czas
+                        }
+                    }
+            },false)
+        })
+        //klik LPM /end
+        //
+        //klik PPM
+        var mines=mines_input.value
+        var PPMstatus=0
+        pole.forEach(function(element){
+            element.addEventListener("contextmenu",function(e){
+                e.preventDefault()
+                if(this.classList.contains('showed')){}
+                else {
+                    if(this.classList.contains('flagged')){
+                        this.style.backgroundImage="url('img/pyt.png')"
+                        this.classList.add('questioned')
+                        this.classList.remove('flagged')
+                        mines++
+                        div1.innerHTML='Pozostało bomb: '+mines
+                    }
+                    else if(this.classList.contains('questioned')){
+                        this.style.backgroundImage="url('img/klepa.png')"
+                        this.classList.remove('questioned')
+                    }
+                    else{
+                        this.style.backgroundImage="url('img/flaga.png')"
+                        this.classList.add('flagged')
+                        mines--
+                        div1.innerHTML='Pozostało bomb: '+mines
+                    }
+                }
+            })
+        })
+        //klik PPM /end
+    }
+    }
+</script>
+</body>
+</html>
